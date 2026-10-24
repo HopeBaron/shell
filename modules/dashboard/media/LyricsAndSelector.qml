@@ -57,7 +57,6 @@ Item {
             label.Layout.maximumWidth: minLeftWidth - iconLabel.implicitWidth - textRow.spacing - textRow.anchors.horizontalCenterOffset / 2 - horizontalPadding * 2
             label.elide: Text.ElideRight
 
-            stateLayer.disabled: true
             menuOnTop: true
 
             Variants {
