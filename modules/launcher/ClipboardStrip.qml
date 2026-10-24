@@ -9,25 +9,31 @@ import qs.services
 import qs.modules.launcher.items
 import qs.modules.launcher.services
 
-// The clipboard as a grid of cards, a couple of rows at a time. Moving past the last visible card flips to the
-// next set of rows; the wheel scrolls a row at a time. (The launcher's other modes are vertical lists.)
-GridView {
+// The clipboard as one row of cards (a horizontal list, so it is always a single row). Reaching the last visible card flips to the next row, which starts with that
+// card; going back mirrors it. The wheel flips a row at a time. (The launcher's other modes are vertical lists.)
+ListView {
     id: root
 
     required property SearchBar search
     required property ScreenState screenState
 
-    readonly property int visibleRows: 2
-    readonly property int columns: Math.max(1, Math.floor(width / cellWidth))
-    readonly property int rows: Math.ceil(count / columns)
-    readonly property real maxY: Math.max(0, rows * cellHeight - height)
+    // First visible card, and how many fit.
+    property int start
+    property int previousIndex
     property bool wheeling
+    readonly property int columns: Math.max(1, Math.floor(width / cellWidth))
 
-    // Move the highlight by whole cells; Up / Down use dy, Left / Right dx.
+    // Show the row beginning at card i (kept inside the list).
+    function showFrom(i: int): void {
+        start = Math.max(0, Math.min(Math.max(0, count - columns), i));
+        contentX = originX + start * cellWidth;
+    }
+
+    // Move the highlight one card (Up / Down move it too, as in the other lists).
     function step(dx: int, dy: int): void {
         if (count === 0)
             return;
-        currentIndex = Math.max(0, Math.min(count - 1, currentIndex + dx + dy * columns));
+        currentIndex = Math.max(0, Math.min(count - 1, currentIndex + dx + dy));
     }
 
     function incrementCurrentIndex(): void {
@@ -38,24 +44,26 @@ GridView {
         step(-1, 0);
     }
 
-    // Show the set of rows that holds the highlighted card.
-    function showHighlighted(): void {
-        const row = Math.floor(currentIndex / columns);
-        contentY = Math.min(maxY, Math.floor(row / visibleRows) * visibleRows * cellHeight);
-    }
+    readonly property real cellWidth: Tokens.sizes.launcher.itemHeight * 3.4
+    readonly property real cellHeight: Tokens.sizes.launcher.itemHeight * 2.8
 
-    cellWidth: Tokens.sizes.launcher.itemHeight * 3.4
-    cellHeight: Tokens.sizes.launcher.itemHeight * 2.8
-    implicitHeight: cellHeight * visibleRows
+    implicitHeight: cellHeight
     leftMargin: Math.max(0, (width - columns * cellWidth) / 2)
 
+    orientation: ListView.Horizontal
+    spacing: 0
     clip: true
     interactive: false
     highlightFollowsCurrentItem: false
+    highlightRangeMode: ListView.NoHighlightRange
 
     model: ScriptModel {
         values: Clipboard.query(root.search.text)
-        onValuesChanged: root.currentIndex = 0
+        onValuesChanged: {
+            root.currentIndex = 0;
+            root.previousIndex = 0;
+            root.showFrom(0);
+        }
     }
 
     delegate: ClipboardCard {
@@ -63,27 +71,33 @@ GridView {
     }
 
     onCurrentIndexChanged: {
-        if (!wheeling)
-            showHighlighted();
+        if (wheeling)
+            return;
+        const forward = currentIndex > previousIndex;
+        previousIndex = currentIndex;
+        if (currentIndex < start)
+            showFrom(currentIndex - (columns - 1)); // went back: this card becomes the last of the row
+        else if (currentIndex > start + columns - 1)
+            showFrom(currentIndex);
+        else if (forward && currentIndex === start + columns - 1 && currentIndex < count - 1)
+            showFrom(currentIndex); // reached the last visible card: it becomes the first of the next row
     }
 
-    Behavior on contentY {
+    Behavior on contentX {
         Anim {}
     }
 
-    // The wheel moves a row at a time; the highlight follows into view, in the same column.
+    // The wheel flips a row at a time (the new row starts on the old row's last card); the highlight follows into view.
     WheelHandler {
         onWheel: event => {
             const dir = event.angleDelta.y < 0 ? 1 : -1;
             root.wheeling = true;
-            root.contentY = Math.max(0, Math.min(root.maxY, root.contentY + dir * root.cellHeight));
-            const first = Math.round(root.contentY / root.cellHeight);
-            const row = Math.floor(root.currentIndex / root.columns);
-            const col = root.currentIndex % root.columns;
-            if (row < first)
-                root.currentIndex = Math.min(root.count - 1, first * root.columns + col);
-            else if (row > first + root.visibleRows - 1)
-                root.currentIndex = Math.min(root.count - 1, (first + root.visibleRows - 1) * root.columns + col);
+            root.showFrom(root.start + dir * (root.columns - 1));
+            if (root.currentIndex < root.start)
+                root.currentIndex = root.start;
+            else if (root.currentIndex > root.start + root.columns - 1)
+                root.currentIndex = Math.min(root.count - 1, root.start + root.columns - 1);
+            root.previousIndex = root.currentIndex;
             root.wheeling = false;
         }
     }
