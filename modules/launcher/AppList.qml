@@ -372,9 +372,6 @@ StyledListView {
     Connections {
         function onLauncherChanged() {
             root.syncDisplayText();
-            // Reopened still in clipboard mode: the state did not change, so re-read the history for new copies.
-            if (root.screenState.launcher && root.state === "clipboard")
-                Clipboard.reload();
         }
 
         target: root.screenState
