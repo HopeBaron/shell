@@ -31,9 +31,7 @@ Searcher {
         const texts = pins.filter(p => p.kind === "text").map(p => normalise(p.text));
         // cliphist shortens long clips with a trailing "…".
         const isPinned = h => !h.image && texts.some(t => t === h.text || (h.text.endsWith("…") && t.startsWith(h.text.slice(0, -1))));
-        return [...pinned, ...history.filter(h => !isPinned(h))].map((e, i) => Object.assign({}, e, {
-                order: i
-            }));
+        return [...pinned, ...history.filter(h => !isPinned(h))];
     }
 
     // The focused image entry, decoded to a file the preview can load. History
@@ -124,8 +122,7 @@ Searcher {
     property var captureEntry: null
     property string captureFile
 
-    // Variants does not promise to keep its instances in model order as the model changes, so sort by position.
-    list: [...items.instances].sort((a, b) => a.order - b.order)
+    list: items.instances
     key: "text"
 
     Variants {
@@ -224,7 +221,6 @@ Searcher {
 
     component Entry: QtObject {
         required property var modelData
-        readonly property int order: modelData.order
         readonly property string id: modelData.id
         readonly property bool pinned: modelData.pinned
         readonly property bool image: modelData.image
