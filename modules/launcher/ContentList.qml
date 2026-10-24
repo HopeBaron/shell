@@ -28,16 +28,16 @@ Item {
     readonly property var currentList: showWallpapers ? wallpaperList.item : showClipboard ? clipList.item : appList.item // Can be either ListView or PathView, so can't type properly
     property string animState: showWallpapers ? "wallpapers" : showClipboard ? "clipboard" : "apps"
 
-    // Clipboard mode: the highlighted entry, and room above the list to show it if it is an image.
+    // Clipboard mode: the highlighted entry, and room above the list to show it (a picture, or the text itself).
     readonly property var focusedClip: showClipboard ? clipList.item?.currentItem?.modelData ?? null : null
-    readonly property bool showPreview: focusedClip?.image ?? false
+    readonly property bool showPreview: focusedClip !== null
     readonly property real previewBaseHeight: Tokens.sizes.launcher.itemHeight * 6
     // Expanded: the full width, and a bit taller (never past what the screen leaves after a few list rows).
     readonly property bool previewFull: showPreview && Clipboard.previewExpanded
     property real previewHeight: showPreview ? (Clipboard.previewExpanded ? Math.min(previewBaseHeight * 1.4, maxHeight - Tokens.sizes.launcher.itemHeight * 4) : previewBaseHeight) : 0
 
     onFocusedClipChanged: {
-        if (focusedClip?.image)
+        if (focusedClip)
             Clipboard.preview(focusedClip);
         else
             Clipboard.previewExpanded = false;
@@ -162,7 +162,7 @@ Item {
         height: Math.max(0, root.previewHeight - Tokens.padding.small * 2)
 
         visible: root.previewHeight > 0
-        opacity: root.showPreview && Clipboard.previewReady && Clipboard.previewId === root.focusedClip?.id ? 1 : 0
+        opacity: root.showPreview && (root.focusedClip.image ? Clipboard.previewReady && Clipboard.previewId === root.focusedClip.id : Clipboard.previewTextId === root.focusedClip.id) ? 1 : 0
         radius: Tokens.rounding.large
         color: Colours.palette.m3surfaceContainerHigh
 
@@ -198,9 +198,23 @@ Item {
             }
         }
 
+        // A text clip: the start of it, cut with "…" where it no longer fits, so the area never changes size.
+        StyledText {
+            anchors.fill: parent
+            anchors.margins: Tokens.padding.large
+            anchors.rightMargin: Tokens.padding.large + expandIcon.implicitWidth + Tokens.padding.medium
+            visible: !(root.focusedClip?.image ?? false)
+
+            text: Clipboard.previewText
+            font: Tokens.font.body.medium
+            wrapMode: Text.Wrap
+            elide: Text.ElideRight
+        }
+
         Image {
             anchors.fill: parent
             anchors.margins: Tokens.padding.small
+            visible: root.focusedClip?.image ?? false
             source: Clipboard.previewSource
             fillMode: Image.PreserveAspectFit
             asynchronous: true

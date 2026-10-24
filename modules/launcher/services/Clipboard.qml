@@ -55,9 +55,40 @@ Searcher {
         return search.slice(`${GlobalConfig.launcher.actionPrefix}clipboard `.length);
     }
 
-    function preview(entry: var): void {
-        if (!entry || !entry.image)
+    // The focused text clip, in full, for the preview.
+    property string previewText
+    property string previewTextId
+    property string textWanted
+    property string textLoaded
+
+    function loadText(entry: var): void {
+        if (entry.pinned) {
+            previewText = entry.full;
+            previewTextId = entry.id;
             return;
+        }
+        // Only digits are ever put in a command line.
+        if (!/^[0-9]+$/.test(entry.id))
+            return;
+        textWanted = entry.id;
+        if (!decodeText.running)
+            startText();
+    }
+
+    function startText(): void {
+        textLoaded = textWanted;
+        // Cut very long clips: the preview only shows the start.
+        decodeText.command = ["sh", "-c", `cliphist decode ${textLoaded} | head -c 20000`];
+        decodeText.running = true;
+    }
+
+    function preview(entry: var): void {
+        if (!entry)
+            return;
+        if (!entry.image) {
+            loadText(entry);
+            return;
+        }
         if (entry.pinned) {
             previewId = entry.id;
             previewFile = entry.file;
@@ -152,6 +183,22 @@ Searcher {
         onLoadFailed: err => {
             if (err === FileViewError.FileNotFound)
                 root.pinsLoaded = true;
+        }
+    }
+
+    Process {
+        id: decodeText
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.previewText = text;
+                root.previewTextId = root.textLoaded;
+            }
+        }
+        onExited: {
+            // The highlight moved on while this ran: fetch the one it is on now.
+            if (root.textWanted !== root.textLoaded)
+                root.startText();
         }
     }
 
