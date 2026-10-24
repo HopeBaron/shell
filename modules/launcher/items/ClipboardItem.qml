@@ -25,12 +25,22 @@ Item {
         anchors.rightMargin: Tokens.padding.medium
         anchors.margins: Tokens.padding.small
 
+        // Pinned clips get a solid, coloured pin.
+        StyledRect {
+            anchors.centerIn: icon
+            implicitWidth: icon.implicitHeight * 1.25
+            implicitHeight: implicitWidth
+            radius: implicitWidth / 2
+            visible: root.modelData?.pinned ?? false
+            color: Colours.palette.m3primary
+        }
+
         MaterialIcon {
             id: icon
 
             anchors.verticalCenter: parent.verticalCenter
             text: root.modelData?.pinned ? "push_pin" : root.modelData?.image ? "image" : "content_paste"
-            color: root.modelData?.pinned ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
+            color: root.modelData?.pinned ? Colours.palette.m3onPrimary : Colours.palette.m3onSurfaceVariant
             fill: root.modelData?.pinned ? 1 : 0
             fontStyle: Tokens.font.icon.builders.large.scale(1.3).build()
         }
