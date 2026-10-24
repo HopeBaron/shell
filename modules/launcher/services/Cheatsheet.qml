@@ -352,6 +352,34 @@ Searcher {
         },
         Key {
             section: "Capture / Clipboard / Media"
+            keys: "Ctrl+D (in clipboard)"
+            name: "Delete the highlighted clip"
+            run: "hl.dsp.global(\"caelestia:clipboard\")"
+            icon: "delete"
+        },
+        Key {
+            section: "Capture / Clipboard / Media"
+            keys: "Ctrl+X (in clipboard)"
+            name: "Pin / unpin the highlighted clip"
+            run: "hl.dsp.global(\"caelestia:clipboard\")"
+            icon: "push_pin"
+        },
+        Key {
+            section: "Capture / Clipboard / Media"
+            keys: "Alt+Delete (in clipboard)"
+            name: "Clear clipboard history"
+            run: "hl.dsp.global(\"caelestia:clipboard\")"
+            icon: "delete_sweep"
+        },
+        Key {
+            section: "Capture / Clipboard / Media"
+            keys: ""
+            name: "Delete a clip (picker)"
+            run: "hl.dsp.exec_cmd(\"pkill fuzzel || caelestia clipboard -d\")"
+            icon: "delete"
+        },
+        Key {
+            section: "Capture / Clipboard / Media"
             keys: "Super+."
             name: "Emoji picker"
             run: "hl.dsp.exec_cmd(\"pkill fuzzel || caelestia emoji -p\")"

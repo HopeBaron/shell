@@ -104,6 +104,19 @@ Item {
                 return;
             }
 
+            // Ctrl+D deletes the highlighted clip (unpins it if pinned); Ctrl+X pins / unpins it.
+            if ((event.modifiers & Qt.ControlModifier) && list.currentList?.state === "clipboard" && (event.key === Qt.Key_D || event.key === Qt.Key_X)) {
+                const entry = list.currentList.currentItem?.modelData;
+                if (entry) {
+                    if (event.key === Qt.Key_X || entry.pinned)
+                        entry.togglePin();
+                    else
+                        entry.remove();
+                }
+                event.accepted = true;
+                return;
+            }
+
             if (!GlobalConfig.launcher.vimKeybinds)
                 return;
 
