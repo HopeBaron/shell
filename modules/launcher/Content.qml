@@ -83,8 +83,8 @@ Item {
             }
         }
 
-        Keys.onUpPressed: list.currentList?.decrementCurrentIndex()
-        Keys.onDownPressed: list.currentList?.incrementCurrentIndex()
+        Keys.onUpPressed: list.showClipboard ? list.currentList?.step(0, -1) : list.currentList?.decrementCurrentIndex()
+        Keys.onDownPressed: list.showClipboard ? list.currentList?.step(0, 1) : list.currentList?.incrementCurrentIndex()
 
         // The clipboard is a strip: Left / Right slide through it (elsewhere they move the text cursor).
         Keys.onLeftPressed: event => {
