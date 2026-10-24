@@ -116,14 +116,6 @@ Item {
         }
     }
 
-    // The wheel flips the clipboard strip a row at a time, wherever it is over the launcher
-    // (target: null, or the handler would also rotate its parent).
-    WheelHandler {
-        target: null
-        enabled: root.showClipboard
-        onWheel: event => clipList.item?.flip(event.angleDelta.y < 0 ? 1 : -1)
-    }
-
     Loader {
         id: appList
 
@@ -300,6 +292,15 @@ Item {
         Behavior on scale {
             Anim {}
         }
+    }
+
+    // The wheel flips the clipboard strip a row at a time, wherever it is over the launcher.
+    MouseArea {
+        anchors.fill: parent
+        z: 10
+        enabled: root.showClipboard
+        acceptedButtons: Qt.NoButton
+        onWheel: wheel => clipList.item?.flip(wheel.angleDelta.y < 0 ? 1 : -1)
     }
 
     Behavior on implicitWidth {
