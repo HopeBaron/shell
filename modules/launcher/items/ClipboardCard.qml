@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell.Io
+import Quickshell.Widgets
 import Caelestia.Config
 import qs.components
 import qs.services
@@ -19,8 +20,11 @@ Item {
     readonly property string thumbFile: pinned ? (modelData?.file ?? "") : `${Clipboard.previewDir}/${modelData?.id}`
     property bool thumbReady: pinned
 
-    implicitWidth: Tokens.sizes.launcher.itemHeight * 3.4
-    implicitHeight: Tokens.sizes.launcher.itemHeight * 2.8
+    // Explicit sizes: a horizontal list lays cards out by width and would never stop creating them at zero.
+    width: Tokens.sizes.launcher.itemHeight * 3.4
+    height: Tokens.sizes.launcher.itemHeight * 2.8
+    implicitWidth: width
+    implicitHeight: height
 
     Component.onCompleted: {
         // History images are decoded to a file once and shared with the preview; only digits reach the shell command.
@@ -41,12 +45,6 @@ Item {
 
         radius: Tokens.rounding.large
         color: Qt.alpha(Colours.palette.m3surfaceContainerHigh, 0.6)
-        border.width: 2
-        border.color: root.ListView.isCurrentItem ? Colours.palette.m3primary : "transparent"
-
-        Behavior on border.color {
-            CAnim {}
-        }
 
         StateLayer {
             radius: Tokens.rounding.large
@@ -54,15 +52,20 @@ Item {
         }
 
         // Image: the thumbnail, cropped to fill the card.
-        Image {
+        ClippingRectangle {
             anchors.fill: parent
-            anchors.margins: 2
             visible: root.image && root.thumbReady
-            source: visible ? `file://${root.thumbFile}` : ""
-            fillMode: Image.PreserveAspectCrop
-            asynchronous: true
-            sourceSize.width: width * 2
-            sourceSize.height: height * 2
+            radius: Tokens.rounding.large
+            color: "transparent"
+
+            Image {
+                anchors.fill: parent
+                source: parent.visible ? `file://${root.thumbFile}` : ""
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+                sourceSize.width: width * 2
+                sourceSize.height: height * 2
+            }
         }
 
         MaterialIcon {
@@ -87,8 +90,23 @@ Item {
             maximumLineCount: 5
         }
 
+        // The selector: an outline on top of the picture, so it is never hidden by it.
+        Rectangle {
+            anchors.fill: parent
+            z: 2
+            radius: Tokens.rounding.large
+            color: "transparent"
+            border.width: 2
+            border.color: root.ListView.isCurrentItem ? Colours.palette.m3primary : "transparent"
+
+            Behavior on border.color {
+                CAnim {}
+            }
+        }
+
         // Pin and delete, top right. On an image they sit on a scrim so they stay readable.
         Row {
+            z: 3
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.margins: Tokens.padding.small

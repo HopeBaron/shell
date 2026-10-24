@@ -234,7 +234,7 @@ Searcher {
         // Only digits are ever put in a command line.
         readonly property bool valid: /^[0-9]+$/.test(id)
 
-        function onClicked(list: AppList): void {
+        function onClicked(list: var): void {
             list.screenState.launcher = false;
             if (pinned) {
                 if (image)

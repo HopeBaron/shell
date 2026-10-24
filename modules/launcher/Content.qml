@@ -88,13 +88,13 @@ Item {
 
         // The clipboard is a strip: Left / Right slide through it (elsewhere they move the text cursor).
         Keys.onLeftPressed: event => {
-            if (list.currentList?.state === "clipboard")
+            if (list.showClipboard)
                 list.currentList.decrementCurrentIndex();
             else
                 event.accepted = false;
         }
         Keys.onRightPressed: event => {
-            if (list.currentList?.state === "clipboard")
+            if (list.showClipboard)
                 list.currentList.incrementCurrentIndex();
             else
                 event.accepted = false;
@@ -104,7 +104,7 @@ Item {
 
         // Alt+Delete in the clipboard list empties the history (pinned clips stay).
         Keys.onDeletePressed: event => {
-            if ((event.modifiers & Qt.AltModifier) && list.currentList?.state === "clipboard") {
+            if ((event.modifiers & Qt.AltModifier) && list.showClipboard) {
                 Clipboard.wipe();
                 event.accepted = true;
             }
@@ -112,14 +112,14 @@ Item {
 
         Keys.onPressed: event => {
             // Ctrl+Space: enlarge / shrink the clipboard image preview.
-            if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_Space && list.currentList?.state === "clipboard") {
+            if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_Space && list.showClipboard) {
                 Clipboard.previewExpanded = !Clipboard.previewExpanded;
                 event.accepted = true;
                 return;
             }
 
             // Ctrl+D deletes the highlighted clip (unpins it if pinned); Ctrl+X pins / unpins it.
-            if ((event.modifiers & Qt.ControlModifier) && list.currentList?.state === "clipboard" && (event.key === Qt.Key_D || event.key === Qt.Key_X)) {
+            if ((event.modifiers & Qt.ControlModifier) && list.showClipboard && (event.key === Qt.Key_D || event.key === Qt.Key_X)) {
                 const entry = list.currentList.currentItem?.modelData;
                 if (entry) {
                     if (event.key === Qt.Key_X || entry.pinned)

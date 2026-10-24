@@ -29,7 +29,7 @@ StyledListView {
     function stateForText(text: string): string {
         const prefix = GlobalConfig.launcher.actionPrefix;
         if (text.startsWith(prefix)) {
-            for (const action of ["calc", "scheme", "variant", "shortcut", "clipboard", "windows", "emojis"])
+            for (const action of ["calc", "scheme", "variant", "shortcut", "windows", "emojis"])
                 if (text.startsWith(`${prefix}${action} `))
                     return action;
 
@@ -51,8 +51,6 @@ StyledListView {
             return M3Variants.query(text);
         case "shortcut":
             return Cheatsheet.query(text);
-        case "clipboard":
-            return Clipboard.query(text);
         case "windows":
             return Windows.query(text);
         case "emojis":
@@ -74,35 +72,21 @@ StyledListView {
     implicitHeight: (Tokens.sizes.launcher.itemHeight + spacing) * Math.min(Config.launcher.maxShown, count) - spacing
 
     preferredHighlightBegin: 0
-    preferredHighlightEnd: orientation === Qt.Horizontal ? width : height
+    preferredHighlightEnd: height
     highlightRangeMode: ListView.ApplyRange
 
     highlightFollowsCurrentItem: false
     highlight: StyledRect {
         radius: Tokens.rounding.large
         color: Colours.palette.m3onSurface
-        opacity: root.orientation === Qt.Horizontal ? 0 : 0.08 // the strip's cards outline the current one themselves
+        opacity: 0.08
 
-        x: root.orientation === Qt.Horizontal ? (root.currentItem?.x ?? 0) : 0
-        y: root.orientation === Qt.Horizontal ? 0 : (root.currentItem?.y ?? 0)
-        implicitWidth: root.orientation === Qt.Horizontal ? (root.currentItem?.width ?? 0) : root.width
+        y: root.currentItem?.y ?? 0
+        implicitWidth: root.width
         implicitHeight: root.currentItem?.implicitHeight ?? 0
-
-        Behavior on x {
-            Anim {}
-        }
 
         Behavior on y {
             Anim {}
-        }
-    }
-
-    // Slide the clipboard strip with the wheel.
-    WheelHandler {
-        enabled: root.orientation === Qt.Horizontal
-        onWheel: event => {
-            const max = Math.max(0, root.contentWidth - root.width);
-            root.contentX = Math.max(0, Math.min(max, root.contentX - (event.angleDelta.y + event.angleDelta.x)));
         }
     }
 
@@ -111,8 +95,6 @@ StyledListView {
     onStateChanged: {
         if (state === "scheme" || state === "variant")
             Schemes.reload();
-        else if (state === "clipboard")
-            Clipboard.reload();
         else if (state === "emojis")
             Emojis.load();
     }
@@ -160,16 +142,6 @@ StyledListView {
 
             PropertyChanges {
                 root.delegate: shortcutItem
-            }
-        },
-        State {
-            name: "clipboard"
-
-            // A strip of cards you slide through left to right.
-            PropertyChanges {
-                root.delegate: clipboardItem
-                root.orientation: Qt.Horizontal
-                root.implicitHeight: root.Tokens.sizes.launcher.itemHeight * 2.8
             }
         },
         State {
@@ -350,14 +322,6 @@ StyledListView {
         id: emojiItem
 
         EmojiItem {
-            list: root
-        }
-    }
-
-    Component {
-        id: clipboardItem
-
-        ClipboardCard {
             list: root
         }
     }

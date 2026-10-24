@@ -23,12 +23,13 @@ Item {
     required property int rounding
 
     readonly property bool showWallpapers: search.text.startsWith(`${GlobalConfig.launcher.actionPrefix}wallpaper `)
-    readonly property var currentList: showWallpapers ? wallpaperList.item : appList.item // Can be either ListView or PathView, so can't type properly
-    property string animState: showWallpapers ? "wallpapers" : "apps"
+    // The clipboard is its own strip (a horizontal list); everything else is the vertical app list.
+    readonly property bool showClipboard: !showWallpapers && search.text.startsWith(`${GlobalConfig.launcher.actionPrefix}clipboard `)
+    readonly property var currentList: showWallpapers ? wallpaperList.item : showClipboard ? clipList.item : appList.item // Can be either ListView or PathView, so can't type properly
+    property string animState: showWallpapers ? "wallpapers" : showClipboard ? "clipboard" : "apps"
 
     // Clipboard mode: the highlighted entry, and room above the list to show it if it is an image.
-    readonly property var focusedClip: appList.item?.state === "clipboard" ? appList.item.currentItem?.modelData ?? null : null
-    readonly property bool clipStrip: appList.item?.state === "clipboard"
+    readonly property var focusedClip: showClipboard ? clipList.item?.currentItem?.modelData ?? null : null
     readonly property bool showPreview: focusedClip?.image ?? false
     readonly property real previewBaseHeight: Tokens.sizes.launcher.itemHeight * 6
     // Expanded: the full width, and a bit taller (never past what the screen leaves after a few list rows).
@@ -57,9 +58,23 @@ Item {
             name: "apps"
 
             PropertyChanges {
-                root.implicitWidth: root.previewFull ? root.maxWidth : root.clipStrip ? Math.min(root.maxWidth, root.Tokens.sizes.launcher.itemWidth * 1.8) : root.Tokens.sizes.launcher.itemWidth
+                root.implicitWidth: root.previewFull ? root.maxWidth : root.Tokens.sizes.launcher.itemWidth
                 root.implicitHeight: Math.min(root.maxHeight, (appList.implicitHeight > 0 ? appList.implicitHeight : empty.implicitHeight) + root.previewHeight)
                 appList.active: true
+            }
+
+            AnchorChanges {
+                anchors.left: root.parent.left
+                anchors.right: root.parent.right
+            }
+        },
+        State {
+            name: "clipboard"
+
+            PropertyChanges {
+                root.implicitWidth: root.previewFull ? root.maxWidth : Math.min(root.maxWidth, root.Tokens.sizes.launcher.itemWidth * 1.8)
+                root.implicitHeight: Math.min(root.maxHeight, (clipList.item?.implicitHeight ?? 0) + root.previewHeight)
+                clipList.active: true
             }
 
             AnchorChanges {
@@ -111,6 +126,25 @@ Item {
 
         sourceComponent: AppList {
             objectName: "launcherAppList"
+
+            search: root.search
+            screenState: root.screenState
+        }
+    }
+
+    Loader {
+        id: clipList
+
+        active: false
+
+        anchors.top: parent.top
+        anchors.topMargin: root.previewHeight
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        sourceComponent: ClipboardStrip {
+            objectName: "launcherClipboardStrip"
 
             search: root.search
             screenState: root.screenState
