@@ -78,13 +78,13 @@ StyledRect {
         thisSideX: Menu.Left
         marginY: Tokens.spacing.small
         menuWidth: root.width
-        items: adapters.instances
+        items: adapterItems.instances
         active: items.find(i => i.value === root.selected) ?? null
         onItemSelected: item => Nmcli.selectDevice(item.value)
     }
 
     Variants {
-        id: adapters
+        id: adapterItems
 
         model: root.adapters
 
