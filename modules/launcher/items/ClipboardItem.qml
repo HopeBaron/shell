@@ -29,9 +29,8 @@ Item {
             id: icon
 
             anchors.verticalCenter: parent.verticalCenter
-            text: root.modelData?.pinned ? "push_pin" : root.modelData?.image ? "image" : "content_paste"
-            color: root.modelData?.pinned ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
-            fill: root.modelData?.pinned ? 1 : 0
+            text: root.modelData?.image ? "image" : "content_paste"
+            color: Colours.palette.m3onSurfaceVariant
             fontStyle: Tokens.font.icon.builders.large.scale(1.3).build()
         }
 
