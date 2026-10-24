@@ -24,6 +24,9 @@ Item {
 
     readonly property bool showWallpapers: search.text.startsWith(`${GlobalConfig.launcher.actionPrefix}wallpaper `)
     // The clipboard is its own strip (a horizontal list); everything else is the vertical app list.
+    // The clipboard strip is exactly as wide as the whole cards that fit, so no card is ever cut off.
+    readonly property real stripCell: Tokens.sizes.launcher.itemHeight * 3.4
+    readonly property real stripWidth: Math.max(1, Math.floor(Math.min(maxWidth, Tokens.sizes.launcher.itemWidth * 1.8) / stripCell)) * stripCell
     readonly property bool showClipboard: !showWallpapers && search.text.startsWith(`${GlobalConfig.launcher.actionPrefix}clipboard `)
     readonly property var currentList: showWallpapers ? wallpaperList.item : showClipboard ? clipList.item : appList.item // Can be either ListView or PathView, so can't type properly
     property string animState: showWallpapers ? "wallpapers" : showClipboard ? "clipboard" : "apps"
@@ -72,7 +75,7 @@ Item {
             name: "clipboard"
 
             PropertyChanges {
-                root.implicitWidth: root.previewFull ? root.maxWidth : Math.min(root.maxWidth, root.Tokens.sizes.launcher.itemWidth * 1.8)
+                root.implicitWidth: root.previewFull ? root.maxWidth : root.stripWidth
                 root.implicitHeight: Math.min(root.maxHeight, (clipList.item?.implicitHeight ?? 0) + root.previewHeight)
                 clipList.active: true
             }

@@ -80,7 +80,7 @@ Item {
         StyledText {
             anchors.fill: parent
             anchors.margins: Tokens.padding.medium
-            anchors.topMargin: Tokens.padding.medium + Tokens.padding.large
+            anchors.topMargin: pinIcon.implicitHeight + Tokens.padding.small * 3
             visible: !root.image
 
             text: root.modelData?.text ?? ""
