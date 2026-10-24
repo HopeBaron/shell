@@ -23,6 +23,15 @@ ColumnLayout {
     spacing: Tokens.spacing.small
     width: Tokens.sizes.bar.networkWidth
 
+    // Every adapter, wireless and wired: pick which one to look at.
+    WifiAdapterPicker {
+        includeEthernet: true
+        Layout.preferredHeight: visible ? implicitHeight : 0
+        Layout.topMargin: visible ? Tokens.padding.medium : 0
+        Layout.fillWidth: true
+        Layout.rightMargin: Tokens.padding.extraSmall
+    }
+
     // Wireless section
     StyledText {
         visible: root.view === "wireless"
@@ -39,13 +48,6 @@ ColumnLayout {
         label: Tr.trCtx("Enabled", "toggle label")
         checked: Nmcli.wifiEnabled
         toggle.onToggled: Nmcli.enableWifi(checked)
-    }
-
-    WifiAdapterPicker {
-        visible: root.view === "wireless" && Nmcli.wirelessInterfaces.length > 1
-        Layout.preferredHeight: visible ? implicitHeight : 0
-        Layout.fillWidth: true
-        Layout.rightMargin: Tokens.padding.extraSmall
     }
 
     StyledText {

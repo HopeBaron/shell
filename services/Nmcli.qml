@@ -17,6 +17,9 @@ Singleton {
     property string activeInterface: ""
     // Wi-Fi adapter the network list, connect and disconnect act on, so each adapter can be used on its own.
     property string selectedDevice: ""
+    // The chosen adapter is an ethernet one, or none is chosen and a cable is plugged in: show the ethernet side.
+    readonly property bool ethernetSelected: ethernetInterfaces.some(i => i.device === selectedDevice)
+    readonly property bool showEthernet: ethernetSelected || (selectedDevice === "" && activeEthernet !== null)
     readonly property string wifiDevice: wirelessInterfaces.some(i => i.device === selectedDevice) ? selectedDevice : (wirelessInterfaces[0]?.device ?? "")
     property string activeConnection: ""
     property bool wifiEnabled: true

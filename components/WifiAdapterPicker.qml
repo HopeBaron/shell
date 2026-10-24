@@ -6,7 +6,8 @@ import qs.components
 import qs.components.controls
 import qs.services
 
-// Dropdown of Wi-Fi adapters, so each can be listed, connected and disconnected on its own.
+// Dropdown of network adapters (every Wi-Fi one, and the wired ones with includeEthernet), so each can be looked at,
+// connected and disconnected on its own.
 StyledRect {
     id: root
 
@@ -14,9 +15,19 @@ StyledRect {
         return Nmcli.isConnectedState(iface.state) && iface.connection ? `${iface.device} · ${iface.connection}` : iface.device;
     }
 
-    readonly property var current: Nmcli.wirelessInterfaces.find(i => i.device === Nmcli.wifiDevice) ?? null
+    function iconFor(iface: var): string {
+        if (iface?.type === "ethernet")
+            return "cable";
+        return iface && Nmcli.isConnectedState(iface.state) ? "wifi" : "wifi_off";
+    }
 
-    visible: Nmcli.wirelessInterfaces.length > 1
+    property bool includeEthernet
+
+    readonly property var adapters: [...Nmcli.wirelessInterfaces, ...(includeEthernet ? Nmcli.ethernetInterfaces : [])]
+    readonly property string selected: includeEthernet && Nmcli.showEthernet ? (Nmcli.ethernetSelected ? Nmcli.selectedDevice : (Nmcli.activeEthernet?.iface ?? Nmcli.ethernetInterfaces[0]?.device ?? "")) : Nmcli.wifiDevice
+    readonly property var current: adapters.find(i => i.device === selected) ?? null
+
+    visible: adapters.length > 1
     Layout.fillWidth: true
     implicitHeight: row.implicitHeight + Tokens.padding.small * 2
     radius: Tokens.rounding.full
@@ -36,7 +47,7 @@ StyledRect {
         spacing: Tokens.spacing.small
 
         MaterialIcon {
-            text: root.current && Nmcli.isConnectedState(root.current.state) ? "wifi" : "wifi_off"
+            text: root.iconFor(root.current)
             color: Colours.palette.m3onSecondaryContainer
             fill: 1
         }
@@ -44,7 +55,7 @@ StyledRect {
         StyledText {
             Layout.fillWidth: true
             elide: Text.ElideRight
-            text: root.current ? root.label(root.current) : Nmcli.wifiDevice
+            text: root.current ? root.label(root.current) : root.selected
             color: Colours.palette.m3onSecondaryContainer
         }
 
@@ -68,20 +79,20 @@ StyledRect {
         marginY: Tokens.spacing.small
         menuWidth: root.width
         items: adapters.instances
-        active: items.find(i => i.value === Nmcli.wifiDevice) ?? null
+        active: items.find(i => i.value === root.selected) ?? null
         onItemSelected: item => Nmcli.selectDevice(item.value)
     }
 
     Variants {
         id: adapters
 
-        model: Nmcli.wirelessInterfaces
+        model: root.adapters
 
         MenuItem {
             required property var modelData
 
             text: root.label(modelData)
-            icon: Nmcli.isConnectedState(modelData.state) ? "wifi" : "wifi_off"
+            icon: root.iconFor(modelData)
             value: modelData.device
         }
     }
