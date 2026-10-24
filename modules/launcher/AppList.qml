@@ -74,21 +74,35 @@ StyledListView {
     implicitHeight: (Tokens.sizes.launcher.itemHeight + spacing) * Math.min(Config.launcher.maxShown, count) - spacing
 
     preferredHighlightBegin: 0
-    preferredHighlightEnd: height
+    preferredHighlightEnd: orientation === Qt.Horizontal ? width : height
     highlightRangeMode: ListView.ApplyRange
 
     highlightFollowsCurrentItem: false
     highlight: StyledRect {
         radius: Tokens.rounding.large
         color: Colours.palette.m3onSurface
-        opacity: 0.08
+        opacity: root.orientation === Qt.Horizontal ? 0 : 0.08 // the strip's cards outline the current one themselves
 
-        y: root.currentItem?.y ?? 0
-        implicitWidth: root.width
+        x: root.orientation === Qt.Horizontal ? (root.currentItem?.x ?? 0) : 0
+        y: root.orientation === Qt.Horizontal ? 0 : (root.currentItem?.y ?? 0)
+        implicitWidth: root.orientation === Qt.Horizontal ? (root.currentItem?.width ?? 0) : root.width
         implicitHeight: root.currentItem?.implicitHeight ?? 0
+
+        Behavior on x {
+            Anim {}
+        }
 
         Behavior on y {
             Anim {}
+        }
+    }
+
+    // Slide the clipboard strip with the wheel.
+    WheelHandler {
+        enabled: root.orientation === Qt.Horizontal
+        onWheel: event => {
+            const max = Math.max(0, root.contentWidth - root.width);
+            root.contentX = Math.max(0, Math.min(max, root.contentX - (event.angleDelta.y + event.angleDelta.x)));
         }
     }
 
@@ -151,8 +165,11 @@ StyledListView {
         State {
             name: "clipboard"
 
+            // A strip of cards you slide through left to right.
             PropertyChanges {
                 root.delegate: clipboardItem
+                root.orientation: Qt.Horizontal
+                root.implicitHeight: root.Tokens.sizes.launcher.itemHeight * 2.8
             }
         },
         State {
@@ -340,7 +357,7 @@ StyledListView {
     Component {
         id: clipboardItem
 
-        ClipboardItem {
+        ClipboardCard {
             list: root
         }
     }

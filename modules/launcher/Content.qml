@@ -86,6 +86,20 @@ Item {
         Keys.onUpPressed: list.currentList?.decrementCurrentIndex()
         Keys.onDownPressed: list.currentList?.incrementCurrentIndex()
 
+        // The clipboard is a strip: Left / Right slide through it (elsewhere they move the text cursor).
+        Keys.onLeftPressed: event => {
+            if (list.currentList?.state === "clipboard")
+                list.currentList.decrementCurrentIndex();
+            else
+                event.accepted = false;
+        }
+        Keys.onRightPressed: event => {
+            if (list.currentList?.state === "clipboard")
+                list.currentList.incrementCurrentIndex();
+            else
+                event.accepted = false;
+        }
+
         Keys.onEscapePressed: root.screenState.launcher = false
 
         // Alt+Delete in the clipboard list empties the history (pinned clips stay).

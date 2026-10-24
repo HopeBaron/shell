@@ -28,6 +28,7 @@ Item {
 
     // Clipboard mode: the highlighted entry, and room above the list to show it if it is an image.
     readonly property var focusedClip: appList.item?.state === "clipboard" ? appList.item.currentItem?.modelData ?? null : null
+    readonly property bool clipStrip: appList.item?.state === "clipboard"
     readonly property bool showPreview: focusedClip?.image ?? false
     readonly property real previewBaseHeight: Tokens.sizes.launcher.itemHeight * 6
     // Expanded: the full width, and a bit taller (never past what the screen leaves after a few list rows).
@@ -56,7 +57,7 @@ Item {
             name: "apps"
 
             PropertyChanges {
-                root.implicitWidth: root.previewFull ? root.maxWidth : root.Tokens.sizes.launcher.itemWidth
+                root.implicitWidth: root.previewFull ? root.maxWidth : root.clipStrip ? Math.min(root.maxWidth, root.Tokens.sizes.launcher.itemWidth * 1.8) : root.Tokens.sizes.launcher.itemWidth
                 root.implicitHeight: Math.min(root.maxHeight, (appList.implicitHeight > 0 ? appList.implicitHeight : empty.implicitHeight) + root.previewHeight)
                 appList.active: true
             }
@@ -141,7 +142,7 @@ Item {
         StyledRect {
             anchors.top: parent.top
             anchors.right: parent.right
-            anchors.margins: Tokens.padding.normal
+            anchors.margins: Tokens.padding.medium
             z: 1
 
             color: Qt.alpha(Colours.palette.m3surface, 0.7)
