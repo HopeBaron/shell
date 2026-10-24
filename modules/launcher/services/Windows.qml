@@ -64,6 +64,18 @@ Searcher {
             root.focusWindow(modelData.address);
         }
 
+        // Ctrl+X: bring this window to the workspace you are on.
+        function moveHere(): void {
+            const addr = `0x${modelData.address}`;
+            Hypr.dispatch(Hypr.usingLua ? `hl.dsp.window.move({ workspace = "${Hypr.activeWsId}", window = "address:${addr}", follow = false })` : `movetoworkspacesilent ${Hypr.activeWsId},address:${addr}`);
+        }
+
+        // Ctrl+Q: close this window.
+        function close(): void {
+            const addr = `0x${modelData.address}`;
+            Hypr.dispatch(Hypr.usingLua ? `hl.dsp.window.close({ window = "address:${addr}" })` : `closewindow address:${addr}`);
+        }
+
         function onClicked(list: AppList): void {
             root.chosen = true;
             list.screenState.launcher = false;

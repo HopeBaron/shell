@@ -35,6 +35,20 @@ Searcher {
         },
         Key {
             section: "Core"
+            keys: "Ctrl+X (in windows)"
+            name: "Bring the highlighted window here"
+            run: "hl.dsp.global(\"caelestia:windows\")"
+            icon: "keyboard"
+        },
+        Key {
+            section: "Core"
+            keys: "Ctrl+Q (in windows)"
+            name: "Close the highlighted window"
+            run: "hl.dsp.global(\"caelestia:windows\")"
+            icon: "keyboard"
+        },
+        Key {
+            section: "Core"
             keys: "Super+T"
             name: "Terminal"
             run: "hl.dsp.exec_cmd(require(\"variables\").terminal)"

@@ -117,6 +117,19 @@ Item {
                 return;
             }
 
+            // Windows list: Ctrl+X brings the highlighted window to this workspace, Ctrl+Q closes it.
+            if ((event.modifiers & Qt.ControlModifier) && list.currentList?.state === "windows" && (event.key === Qt.Key_X || event.key === Qt.Key_Q)) {
+                const win = list.currentList.currentItem?.modelData;
+                if (win) {
+                    if (event.key === Qt.Key_X)
+                        win.moveHere();
+                    else
+                        win.close();
+                }
+                event.accepted = true;
+                return;
+            }
+
             if (!GlobalConfig.launcher.vimKeybinds)
                 return;
 
