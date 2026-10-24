@@ -41,6 +41,13 @@ Searcher {
                 enabled: true
             });
             actions.push({
+                name: "Emojis",
+                icon: "mood",
+                description: "Search emojis and copy one",
+                command: ["autocomplete", "emojis"],
+                enabled: true
+            });
+            actions.push({
                 name: "Windows",
                 icon: "tab",
                 description: "Switch to an open window",

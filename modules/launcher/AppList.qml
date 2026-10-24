@@ -29,7 +29,7 @@ StyledListView {
     function stateForText(text: string): string {
         const prefix = GlobalConfig.launcher.actionPrefix;
         if (text.startsWith(prefix)) {
-            for (const action of ["calc", "scheme", "variant", "shortcut", "clipboard", "windows"])
+            for (const action of ["calc", "scheme", "variant", "shortcut", "clipboard", "windows", "emojis"])
                 if (text.startsWith(`${prefix}${action} `))
                     return action;
 
@@ -55,6 +55,8 @@ StyledListView {
             return Clipboard.query(text);
         case "windows":
             return Windows.query(text);
+        case "emojis":
+            return Emojis.query(text);
         default:
             return Apps.search(text);
         }
@@ -97,6 +99,8 @@ StyledListView {
             Schemes.reload();
         else if (state === "clipboard")
             Clipboard.reload();
+        else if (state === "emojis")
+            Emojis.load();
     }
 
     Component.onCompleted: displayText = search.text
@@ -156,6 +160,13 @@ StyledListView {
 
             PropertyChanges {
                 root.delegate: windowItem
+            }
+        },
+        State {
+            name: "emojis"
+
+            PropertyChanges {
+                root.delegate: emojiItem
             }
         }
     ]
@@ -314,6 +325,14 @@ StyledListView {
         id: windowItem
 
         WindowItem {
+            list: root
+        }
+    }
+
+    Component {
+        id: emojiItem
+
+        EmojiItem {
             list: root
         }
     }

@@ -394,9 +394,9 @@ Searcher {
         },
         Key {
             section: "Capture / Clipboard / Media"
-            keys: "Super+."
-            name: "Emoji picker"
-            run: "hl.dsp.exec_cmd(\"pkill fuzzel || caelestia emoji -p\")"
+            keys: ""
+            name: "Emoji picker (>emojis)"
+            run: "hl.dsp.global(\"caelestia:emojis\")"
             icon: "screenshot_region"
         },
         Key {
