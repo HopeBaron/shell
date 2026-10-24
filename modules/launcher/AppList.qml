@@ -52,7 +52,6 @@ StyledListView {
         case "shortcut":
             return Cheatsheet.query(text);
         case "clipboard":
-            void Clipboard.revision; // re-run when the clipboard rows change
             return Clipboard.query(text);
         case "windows":
             return Windows.query(text);
@@ -373,9 +372,6 @@ StyledListView {
     Connections {
         function onLauncherChanged() {
             root.syncDisplayText();
-            // Reopened still in clipboard mode: the state did not change, so re-read the history for new copies.
-            if (root.screenState.launcher && root.state === "clipboard")
-                Clipboard.reload();
         }
 
         target: root.screenState

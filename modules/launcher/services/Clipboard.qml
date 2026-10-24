@@ -14,12 +14,6 @@ import qs.utils
 Searcher {
     id: root
 
-    // Bumped once the rows for a changed list exist, so the launcher rebuilds its results then
-    // (the rows are made by Variants after `entries` changes, and nothing else tells the launcher).
-    property int revision
-
-    onEntriesChanged: Qt.callLater(() => revision++)
-
     property var history: []
     property var pins: []
     property bool pinsLoaded
