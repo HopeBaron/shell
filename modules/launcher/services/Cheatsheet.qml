@@ -126,7 +126,7 @@ Searcher {
         },
         Key {
             section: "Core"
-            keys: "Ctrl+Alt+Delete"
+            keys: "Super+Escape"
             name: "Session menu"
             run: "hl.dsp.global(\"caelestia:session\")"
             icon: "keyboard"
@@ -147,7 +147,7 @@ Searcher {
         },
         Key {
             section: "Core"
-            keys: "Ctrl+Alt+C"
+            keys: ""
             name: "Clear notifications"
             run: "hl.dsp.global(\"caelestia:clearNotifs\")"
             icon: "keyboard"
