@@ -52,6 +52,7 @@ StyledListView {
         case "shortcut":
             return Cheatsheet.query(text);
         case "clipboard":
+            void Clipboard.revision; // re-run when the clipboard rows change
             return Clipboard.query(text);
         case "windows":
             return Windows.query(text);

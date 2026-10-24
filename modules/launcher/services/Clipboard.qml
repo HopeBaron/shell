@@ -14,6 +14,12 @@ import qs.utils
 Searcher {
     id: root
 
+    // Bumped once the rows for a changed list exist, so the launcher rebuilds its results then
+    // (the rows are made by Variants after `entries` changes, and nothing else tells the launcher).
+    property int revision
+
+    onEntriesChanged: Qt.callLater(() => revision++)
+
     property var history: []
     property var pins: []
     property bool pinsLoaded
@@ -31,7 +37,9 @@ Searcher {
         const texts = pins.filter(p => p.kind === "text").map(p => normalise(p.text));
         // cliphist shortens long clips with a trailing "…".
         const isPinned = h => !h.image && texts.some(t => t === h.text || (h.text.endsWith("…") && t.startsWith(h.text.slice(0, -1))));
-        return [...pinned, ...history.filter(h => !isPinned(h))];
+        return [...pinned, ...history.filter(h => !isPinned(h))].map((e, i) => Object.assign({}, e, {
+                order: i
+            }));
     }
 
     // The focused image entry, decoded to a file the preview can load. History
@@ -122,7 +130,8 @@ Searcher {
     property var captureEntry: null
     property string captureFile
 
-    list: items.instances
+    // Variants adds rows for new entries at the end, whatever their position in the model, so sort by it.
+    list: [...items.instances].sort((a, b) => a.order - b.order)
     key: "text"
 
     Variants {
@@ -221,6 +230,7 @@ Searcher {
 
     component Entry: QtObject {
         required property var modelData
+        readonly property int order: modelData.order
         readonly property string id: modelData.id
         readonly property bool pinned: modelData.pinned
         readonly property bool image: modelData.image
