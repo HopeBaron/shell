@@ -29,6 +29,18 @@ ListView {
         contentX = originX + start * cellWidth;
     }
 
+    // Flip to the next (dir 1) or previous (dir -1) row, which starts on the old row's last card; the highlight follows into view.
+    function flip(dir: int): void {
+        wheeling = true;
+        showFrom(start + dir * (columns - 1));
+        if (currentIndex < start)
+            currentIndex = start;
+        else if (currentIndex > start + columns - 1)
+            currentIndex = Math.min(count - 1, start + columns - 1);
+        previousIndex = currentIndex;
+        wheeling = false;
+    }
+
     // Move the highlight one card (Up / Down move it too, as in the other lists).
     function step(dx: int, dy: int): void {
         if (count === 0)
@@ -85,21 +97,6 @@ ListView {
 
     Behavior on contentX {
         Anim {}
-    }
-
-    // The wheel flips a row at a time (the new row starts on the old row's last card); the highlight follows into view.
-    WheelHandler {
-        onWheel: event => {
-            const dir = event.angleDelta.y < 0 ? 1 : -1;
-            root.wheeling = true;
-            root.showFrom(root.start + dir * (root.columns - 1));
-            if (root.currentIndex < root.start)
-                root.currentIndex = root.start;
-            else if (root.currentIndex > root.start + root.columns - 1)
-                root.currentIndex = Math.min(root.count - 1, root.start + root.columns - 1);
-            root.previousIndex = root.currentIndex;
-            root.wheeling = false;
-        }
     }
 
     // Fresh history every time the strip comes up.

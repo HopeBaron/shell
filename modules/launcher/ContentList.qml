@@ -116,6 +116,14 @@ Item {
         }
     }
 
+    // The wheel flips the clipboard strip a row at a time, wherever it is over the launcher
+    // (target: null, or the handler would also rotate its parent).
+    WheelHandler {
+        target: null
+        enabled: root.showClipboard
+        onWheel: event => clipList.item?.flip(event.angleDelta.y < 0 ? 1 : -1)
+    }
+
     Loader {
         id: appList
 
